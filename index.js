@@ -32,7 +32,6 @@ async function run() {
     // const db = client.db("primeScopeNewsDB");
     // const userCollection = db.collection("users");
 
-
     // // Save All Users Data on Database
     // app.post("/users", async (req, res) => {
     //   const user = req.body;
@@ -174,7 +173,6 @@ async function run() {
     //   }
     // });
 
-
     // // Approve an Article
     // app.patch("/articles/approve/:id", async (req, res) => {
     //   const id = req.params.id;
@@ -184,7 +182,6 @@ async function run() {
     //   );
     //   res.send(result);
     // });
-
 
     // // Delete an Article from Database
     // app.delete("/articles/:id", async (req, res) => {
