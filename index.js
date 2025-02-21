@@ -65,49 +65,85 @@ async function run() {
     });
 
     // ADD A NEW TASK (POST /tasks)
-    app.post("/tasks", async (req, res) => {
-      const { title, description, category, priority, dueDate, email } =
-        req.body;
+    // app.post("/tasks", async (req, res) => {
+    //   const { title, description, category, priority, dueDate, email } =
+    //     req.body;
 
-      if (!title || title.length > 50) {
-        return res
-          .status(400)
-          .send({
+    //   if (!title || title.length > 50) {
+    //     return res.status(400).send({
+    //       success: false,
+    //       message: "Title is required (max 50 chars)",
+    //     });
+    //   }
+
+    //   const newTask = {
+    //     title,
+    //     description: description?.substring(0, 200) || "",
+    //     category: category || "To-Do",
+    //     priority: priority || "Medium",
+    //     dueDate: dueDate || null,
+    //     email,
+    //     timestamp: new Date(),
+    //   };
+
+    //   const result = await taskCollection.insertOne(newTask);
+    //   res
+    //     .status(201)
+    //     .send({ success: true, insertedId: result.insertedId, task: newTask });
+    // });
+
+    app.post("/tasks", async (req, res) => {
+      try {
+        const { title, description, category, user } = req.body;
+
+        if (!user || !user.email || !user.name) {
+          return res
+            .status(400)
+            .json({ message: "User information is required" });
+        }
+
+        if (!title || title.length > 50) {
+          return res.status(400).send({
             success: false,
             message: "Title is required (max 50 chars)",
           });
+        }
+
+        const newTask = {
+          title,
+          description: description?.substring(0, 200) || "",
+          category: category || "To-Do",
+          timestamp: new Date(),
+          user: {
+            name: user.name,
+            email: user.email,
+          },
+        };
+
+        const result = await taskCollection.insertOne(newTask);
+        res.status(201).json(result);
+      } catch (error) {
+        console.error("Error adding task:", error);
+        res.status(500).json({ message: "Internal Server Error" });
       }
-
-      const newTask = {
-        title,
-        description: description?.substring(0, 200) || "",
-        category: category || "To-Do",
-        priority: priority || "Medium",
-        dueDate: dueDate || null,
-        email,
-        timestamp: new Date(),
-      };
-
-      const result = await taskCollection.insertOne(newTask);
-      res
-        .status(201)
-        .send({ success: true, insertedId: result.insertedId, task: newTask });
     });
 
     // GET TASKS BY USER EMAIL
     app.get("/tasks", async (req, res) => {
-      const { email } = req.query;
-      if (!email) {
-        return res
-          .status(400)
-          .send({ success: false, message: "User email is required" });
-      }
+      try {
+        const email = req.query.email; // Get email from query params
+        if (!email) {
+          return res.status(400).json({ message: "Email is required" });
+        }
 
-      const tasks = await taskCollection
-        .find({ email })
-        .sort({ timestamp: -1 })
-        .toArray();
-      res.send(tasks);
+        const tasks = await taskCollection
+          .find({ "user.email": email })
+          .toArray();
+        res.json(tasks);
+      } catch (error) {
+        console.error("Error fetching tasks:", error);
+        res.status(500).json({ message: "Server error" });
+      }
     });
 
     // Get All Tasks (GET)
