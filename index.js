@@ -75,15 +75,25 @@ async function run() {
           .json({ message: "Title is required and max 50 characters." });
       }
 
+      // const newTask = {
+      //   title,
+      //   description: description?.substring(0, 200),
+      //   category: category || "To-Do", // Default to To-Do
+      //   priority: priority || "Medium",
+      //   dueDate: dueDate || null,
+      //   timestamp: new Date(),
+      //   userId,
+      // };
       const newTask = {
-        title,
-        description: description?.substring(0, 200),
-        category: category || "To-Do", // Default to To-Do
-        priority: priority || "Medium",
-        dueDate: dueDate || null,
-        timestamp: new Date(),
-        userId,
-      };
+  title,
+  description: description?.substring(0, 200),
+  category: category || "To-Do",
+  priority: priority || "Medium",
+  dueDate: dueDate || null,
+  timestamp: new Date(),
+  userId,
+  position: tasks.length, // Default position
+};
 
       const result = await taskCollection.insertOne(newTask);
       res.status(201).json({ success: true, insertedId: result.insertedId });
@@ -94,6 +104,28 @@ async function run() {
       const tasks = await taskCollection.find().toArray();
       res.send(tasks);
     });
+
+    app.put("/tasks/updatePositions", async (req, res) => {
+  const { tasks } = req.body;
+  const bulkOps = tasks.map((task) => ({
+    updateOne: {
+      filter: { _id: new ObjectId(task._id) },
+      update: { $set: { position: task.position } },
+    },
+  }));
+  await taskCollection.bulkWrite(bulkOps);
+  res.json({ success: true });
+});
+
+//    app.get("/tasks", async (req, res) => {
+//   const { userId } = req.query;
+//   if (!userId) {
+//     return res.status(400).json({ message: "User ID is required" });
+//   }
+  
+//   const tasks = await taskCollection.find({ userId }).toArray();
+//   res.send(tasks);
+// });
 
     // ✅ **3. Update a Task (PUT)**
     app.put("/tasks/:id", async (req, res) => {
