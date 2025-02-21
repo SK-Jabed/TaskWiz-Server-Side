@@ -1,3 +1,217 @@
+// // Get a Particular User's Data by Email
+    // app.get("/users/:email", async (req, res) => {
+    //   const email = req.params.email;
+
+    //   if (!email) {
+    //     return res
+    //       .status(400)
+    //       .send({ success: false, message: "Email is required" });
+    //   }
+
+    //   try {
+    //     const query = { email: email };
+    //     const user = await userCollection.findOne(query);
+
+    //     if (!user) {
+    //       return res
+    //         .status(404)
+    //         .send({ success: false, message: "User not found" });
+    //     }
+
+    //     res.send({ success: true, user });
+    //   } catch (error) {
+    //     console.error("Error fetching user by email:", error);
+    //     res
+    //       .status(500)
+    //       .send({ success: false, message: "Internal Server Error" });
+    //   }
+    // });
+
+    // // Get All Articles Data from Database
+    // app.get("/allArticles", async (req, res) => {
+    //   const articles = await articleCollection.find().toArray();
+    //   res.send(articles);
+    // });
+
+    // // Delete an Article by Its Id
+    // app.delete("/articles/:id", async (req, res) => {
+    //   const { id } = req.params;
+
+    //   if (!ObjectId.isValid(id)) {
+    //     return res.status(400).json({ message: "Invalid article ID." });
+    //   }
+
+    //   try {
+    //     const result = await articleCollection.deleteOne({
+    //       _id: new ObjectId(id),
+    //     });
+
+    //     if (result.deletedCount === 0) {
+    //       return res.status(404).json({ message: "Article not found." });
+    //     }
+
+    //     res.status(200).json({ message: "Article deleted successfully." });
+    //   } catch (error) {
+    //     console.error("Error deleting article:", error);
+    //     res.status(500).json({ message: "Failed to delete the article." });
+    //   }
+    // });
+
+    // // Update an Article Data by Its Id
+    // app.patch("/articles/:id", async (req, res) => {
+    //   const { id } = req.params;
+    //   const updatedArticle = req.body;
+
+    //   try {
+    //     if (!ObjectId.isValid(id)) {
+    //       return res.status(400).json({ message: "Invalid Article ID" });
+    //     }
+
+    //     delete updatedArticle._id;
+
+    //     const result = await articleCollection.updateOne(
+    //       { _id: new ObjectId(id) },
+    //       { $set: updatedArticle }
+    //     );
+
+    //     res.status(200).json({
+    //       message: "Update operation completed",
+    //       matchedCount: result.matchedCount,
+    //       modifiedCount: result.modifiedCount,
+    //     });
+    //   } catch (error) {
+    //     console.error("Error updating article:", error);
+    //     res.status(500).json({ message: "Internal server error" });
+    //   }
+    // });
+
+    // app.get("/articles/:id", async (req, res) => {
+    //   const { id } = req.params;
+
+    //   try {
+    //     if (!ObjectId.isValid(id)) {
+    //       return res.status(400).json({ message: "Invalid Article ID" });
+    //     }
+
+    //     const article = await articleCollection.findOne({
+    //       _id: new ObjectId(id),
+    //     });
+
+    //     if (!article) {
+    //       return res.status(404).json({ message: "Article not found" });
+    //     }
+
+    //     res.status(200).json(article);
+    //   } catch (error) {
+    //     console.error("Error fetching article:", error);
+    //     res.status(500).json({ message: "Internal server error" });
+    //   }
+    // });
+
+    // // Approve an Article
+    // app.patch("/articles/approve/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const result = await articleCollection.updateOne(
+    //     { _id: new ObjectId(id) },
+    //     { $set: { status: "approved" } }
+    //   );
+    //   res.send(result);
+    // });
+
+    // // Delete an Article from Database
+    // app.delete("/articles/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const result = await articleCollection.deleteOne({
+    //     _id: new ObjectId(id),
+    //   });
+    //   res.send(result);
+    // });
+
+    //  // Save an Added Item to Database (POST Operation)
+    // app.post("/addItems", async (req, res) => {
+    //   const itemData = req.body;
+    //   const addedItem = await itemCollection.insertOne(itemData);
+    //   res.send(addedItem);
+    // });
+
+    // // Get ALL Items Data from Database (GET Operation)
+    // app.get("/allItems", async (req, res) => {
+    //   const cursor = itemCollection.find();
+    //   const allItems = await cursor.toArray();
+    //   res.send(allItems);
+    // });
+
+    // // Get the latest 6 items sorted by most recent date
+    // app.get("/latestItems", async (req, res) => {
+    //   const cursor = itemCollection
+    //     .find()
+    //     .sort({ postedAt: -1 }) // Sort by createdAt in descending order
+    //     .limit(6); // Limit to 6 items
+    //   const latestItems = await cursor.toArray();
+    //   res.send(latestItems);
+    // });
+
+    // // Get a Single Item Data by Id from DB
+    // app.get("/item/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) };
+    //   const singleItem = await itemCollection.findOne(query);
+    //   res.send(singleItem);
+    // });
+
+    // // Update a Job Data in DB (PUT Operation)
+    // app.put("/updateItem/:id", async (req, res) => {
+    //   const itemData = req.body;
+    //   const id = req.params.id;
+    //   const updatedDoc = {
+    //     $set: itemData,
+    //   };
+    //   const query = { _id: new ObjectId(id) };
+    //   const options = { upsert: true };
+    //   const updatedItem = await itemCollection.updateOne(
+    //     query,
+    //     updatedDoc,
+    //     options
+    //   );
+    //   res.send(updatedItem);
+    // });
+
+    // // Delete a Item from DB (DELETE Operation)
+    // app.delete("/item/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: new ObjectId(id) };
+    //   const deletedItem = await itemCollection.deleteOne(query);
+    //   res.send(deletedItem);
+    // });
+
+    // // Add or Insert Data of Recovered Items to Database
+    // app.post("/recoverItem", async (req, res) => {
+    //   const recoveryData = req.body;
+
+    //   const result = await recoveryCollection.insertOne(recoveryData);
+    //   res.send(result);
+    // });
+
+    // // Get ALL Items Data from Database (GET Operation)
+    // app.get("/recoveries", async (req, res) => {
+    //   const cursor = recoveryCollection.find();
+    //   const allRecoveredItems = await cursor.toArray();
+    //   res.send(allRecoveredItems);
+    // });
+
+    // // Get All Items Posted by a Specific User
+    // app.get("/recoveries/:email", verifyToken, async (req, res) => {
+    //   const email = req.params.email;
+    //   const decodedEmail = req.user?.email;
+
+    //   if (decodedEmail !== email) {
+    //     return res.status(403).send({ message: "Forbidden Access" });
+    //   }
+    //   const query = { "recoveredBy.email": email };
+    //   const recoveredItems = await recoveryCollection.find(query).toArray();
+    //   res.send(recoveredItems);
+    // });
+
 # PrimeScope News Server 🚀
 
 Welcome to the server-side of **PrimeScope News**, an innovative newspaper platform that combines technology and journalism to deliver a seamless news consumption experience. This server handles data management, user authentication, premium features, and administrative functionalities.
