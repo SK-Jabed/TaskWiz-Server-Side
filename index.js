@@ -117,6 +117,21 @@ async function run() {
       res.json({ success: true });
     });
 
+    app.put("/tasks/reorder", async (req, res) => {
+  const { updatedTasks } = req.body;
+
+  const bulkOps = updatedTasks.map((task, index) => ({
+    updateOne: {
+      filter: { _id: new ObjectId(task._id) },
+      update: { $set: { order: index } },
+    },
+  }));
+
+  const result = await taskCollection.bulkWrite(bulkOps);
+  res.json({ success: result.modifiedCount > 0 });
+});
+
+
     //    app.get("/tasks", async (req, res) => {
     //   const { userId } = req.query;
     //   if (!userId) {
