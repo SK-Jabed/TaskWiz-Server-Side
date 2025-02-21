@@ -64,13 +64,15 @@ async function run() {
       res.send(result);
     });
 
-
     // ✅ **1. Create a Task (POST)**
     app.post("/tasks", async (req, res) => {
-      const { title, description, category, priority, dueDate, userId } = req.body;
-      
+      const { title, description, category, priority, dueDate, userId } =
+        req.body;
+
       if (!title || title.length > 50) {
-        return res.status(400).json({ message: "Title is required and max 50 characters." });
+        return res
+          .status(400)
+          .json({ message: "Title is required and max 50 characters." });
       }
 
       const newTask = {
@@ -80,7 +82,7 @@ async function run() {
         priority: priority || "Medium",
         dueDate: dueDate || null,
         timestamp: new Date(),
-        userId
+        userId,
       };
 
       const result = await taskCollection.insertOne(newTask);
@@ -121,7 +123,6 @@ async function run() {
 
       res.json({ success: result.deletedCount > 0 });
     });
-
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
