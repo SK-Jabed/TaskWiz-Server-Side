@@ -65,33 +65,6 @@ async function run() {
     });
 
     // ADD A NEW TASK (POST /tasks)
-    // app.post("/tasks", async (req, res) => {
-    //   const { title, description, category, priority, dueDate, email } =
-    //     req.body;
-
-    //   if (!title || title.length > 50) {
-    //     return res.status(400).send({
-    //       success: false,
-    //       message: "Title is required (max 50 chars)",
-    //     });
-    //   }
-
-    //   const newTask = {
-    //     title,
-    //     description: description?.substring(0, 200) || "",
-    //     category: category || "To-Do",
-    //     priority: priority || "Medium",
-    //     dueDate: dueDate || null,
-    //     email,
-    //     timestamp: new Date(),
-    //   };
-
-    //   const result = await taskCollection.insertOne(newTask);
-    //   res
-    //     .status(201)
-    //     .send({ success: true, insertedId: result.insertedId, task: newTask });
-    // });
-
     app.post("/tasks", async (req, res) => {
       try {
         const { title, description, category, user } = req.body;
@@ -131,7 +104,8 @@ async function run() {
     // GET TASKS BY USER EMAIL
     app.get("/tasks", async (req, res) => {
       try {
-        const email = req.query.email; // Get email from query params
+        const email = req.query.email;
+
         if (!email) {
           return res.status(400).json({ message: "Email is required" });
         }
@@ -146,7 +120,7 @@ async function run() {
       }
     });
 
-    // Get All Tasks (GET)
+    // Get All Tasks (GET Operation)
     app.get("/allTasks", async (req, res) => {
       const allTasks = await taskCollection.find().toArray();
       res.send(allTasks);
@@ -155,7 +129,7 @@ async function run() {
     // UPDATE TASK (PUT /tasks/:id)
     app.put("/tasks/:id", async (req, res) => {
       const { id } = req.params;
-      const { title, description, category, priority, dueDate } = req.body;
+      const { title, description, category } = req.body;
 
       if (!ObjectId.isValid(id)) {
         return res
@@ -167,8 +141,6 @@ async function run() {
         ...(title && { title }),
         ...(description && { description: description.substring(0, 200) }),
         ...(category && { category }),
-        ...(priority && { priority }),
-        ...(dueDate && { dueDate }),
       };
 
       const result = await taskCollection.updateOne(
