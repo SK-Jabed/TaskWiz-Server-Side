@@ -99,6 +99,9 @@ async function run() {
       res.status(201).json({ success: true, insertedId: result.insertedId });
     });
 
+
+
+    
     // ✅ **2. Get All Tasks (GET)**
     app.get("/tasks", async (req, res) => {
       const tasks = await taskCollection.find().toArray();
