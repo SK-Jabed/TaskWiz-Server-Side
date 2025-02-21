@@ -28,7 +28,7 @@ async function run() {
     // Connect the client to the server
     // await client.connect();
 
-    // All Collections of Database
+    // Collections
     const db = client.db("taskWizDB");
     const userCollection = db.collection("users");
     const taskCollection = db.collection("tasks");
@@ -64,92 +64,70 @@ async function run() {
       res.send(result);
     });
 
-    // ✅ **1. Create a Task (POST)**
+    // ADD A NEW TASK (POST /tasks)
     app.post("/tasks", async (req, res) => {
-      const { title, description, category, priority, dueDate, userId } =
+      const { title, description, category, priority, dueDate, email } =
         req.body;
 
       if (!title || title.length > 50) {
         return res
           .status(400)
-          .json({ message: "Title is required and max 50 characters." });
+          .send({
+            success: false,
+            message: "Title is required (max 50 chars)",
+          });
       }
 
-      // const newTask = {
-      //   title,
-      //   description: description?.substring(0, 200),
-      //   category: category || "To-Do", // Default to To-Do
-      //   priority: priority || "Medium",
-      //   dueDate: dueDate || null,
-      //   timestamp: new Date(),
-      //   userId,
-      // };
       const newTask = {
         title,
-        description: description?.substring(0, 200),
+        description: description?.substring(0, 200) || "",
         category: category || "To-Do",
         priority: priority || "Medium",
         dueDate: dueDate || null,
+        email,
         timestamp: new Date(),
-        userId,
-        position: tasks.length, // Default position
       };
 
       const result = await taskCollection.insertOne(newTask);
-      res.status(201).json({ success: true, insertedId: result.insertedId });
+      res
+        .status(201)
+        .send({ success: true, insertedId: result.insertedId, task: newTask });
     });
 
-    // ✅ **2. Get All Tasks (GET)**
+    // GET TASKS BY USER EMAIL
     app.get("/tasks", async (req, res) => {
-      const tasks = await taskCollection.find().toArray();
+      const { email } = req.query;
+      if (!email) {
+        return res
+          .status(400)
+          .send({ success: false, message: "User email is required" });
+      }
+
+      const tasks = await taskCollection
+        .find({ email })
+        .sort({ timestamp: -1 })
+        .toArray();
       res.send(tasks);
     });
 
-    app.put("/tasks/updatePositions", async (req, res) => {
-      const { tasks } = req.body;
-      const bulkOps = tasks.map((task) => ({
-        updateOne: {
-          filter: { _id: new ObjectId(task._id) },
-          update: { $set: { position: task.position } },
-        },
-      }));
-      await taskCollection.bulkWrite(bulkOps);
-      res.json({ success: true });
+    // Get All Tasks (GET)
+    app.get("/allTasks", async (req, res) => {
+      const allTasks = await taskCollection.find().toArray();
+      res.send(allTasks);
     });
 
-    app.put("/tasks/reorder", async (req, res) => {
-  const { updatedTasks } = req.body;
-
-  const bulkOps = updatedTasks.map((task, index) => ({
-    updateOne: {
-      filter: { _id: new ObjectId(task._id) },
-      update: { $set: { order: index } },
-    },
-  }));
-
-  const result = await taskCollection.bulkWrite(bulkOps);
-  res.json({ success: result.modifiedCount > 0 });
-});
-
-
-    //    app.get("/tasks", async (req, res) => {
-    //   const { userId } = req.query;
-    //   if (!userId) {
-    //     return res.status(400).json({ message: "User ID is required" });
-    //   }
-
-    //   const tasks = await taskCollection.find({ userId }).toArray();
-    //   res.send(tasks);
-    // });
-
-
-    
-    // ✅ **3. Update a Task (PUT)**
+    // UPDATE TASK (PUT /tasks/:id)
     app.put("/tasks/:id", async (req, res) => {
       const { id } = req.params;
       const { title, description, category, priority, dueDate } = req.body;
 
-      const updateFields = {
+      if (!ObjectId.isValid(id)) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Invalid task ID" });
+      }
+
+      const updateTask = {
         ...(title && { title }),
         ...(description && { description: description.substring(0, 200) }),
         ...(category && { category }),
@@ -159,18 +137,37 @@ async function run() {
 
       const result = await taskCollection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: updateFields }
+        { $set: updateTask }
       );
 
-      res.json({ success: result.modifiedCount > 0 });
+      if (result.matchedCount === 0) {
+        return res
+          .status(404)
+          .send({ success: false, message: "Task not found" });
+      }
+
+      res.send({ success: true, message: "Task updated successfully" });
     });
 
-    // ✅ **4. Delete a Task (DELETE)**
+    // DELETE TASK (DELETE /tasks/:id)
     app.delete("/tasks/:id", async (req, res) => {
       const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Invalid task ID" });
+      }
+
       const result = await taskCollection.deleteOne({ _id: new ObjectId(id) });
 
-      res.json({ success: result.deletedCount > 0 });
+      if (result.deletedCount === 0) {
+        return res
+          .status(404)
+          .send({ success: false, message: "Task not found" });
+      }
+
+      res.send({ success: true, message: "Task deleted successfully" });
     });
 
     // Send a ping to confirm a successful connection
