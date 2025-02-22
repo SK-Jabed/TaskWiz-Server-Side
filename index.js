@@ -191,9 +191,9 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Hello from Job Task Server...");
+  res.send("Hello from TaskWiz Server...");
 });
 
 app.listen(port, () => {
-  console.log(`Job Task's Server is running on port ${port}`);
+  console.log(`TaskWiz Server is running on port ${port}`);
 });
