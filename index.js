@@ -5,7 +5,7 @@ const morgan = require("morgan");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -91,6 +91,7 @@ async function run() {
             name: user.name,
             email: user.email,
           },
+          index: 0,
         };
 
         const result = await taskCollection.insertOne(newTask);
@@ -155,6 +156,34 @@ async function run() {
       }
 
       res.send({ success: true, message: "Task updated successfully" });
+    });
+
+    // UPDATE TASK CATEGORY (PUT /tasks/:id/category)
+    app.put("/tasks/:id/category", async (req, res) => {
+      const { id } = req.params;
+      const { category } = req.body;
+
+      if (!ObjectId.isValid(id)) {
+        return res
+          .status(400)
+          .send({ success: false, message: "Invalid task ID" });
+      }
+
+      const result = await taskCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { category } }
+      );
+
+      if (result.matchedCount === 0) {
+        return res
+          .status(404)
+          .send({ success: false, message: "Task not found" });
+      }
+
+      res.send({
+        success: true,
+        message: "Task category updated successfully",
+      });
     });
 
     // DELETE TASK (DELETE /tasks/:id)
